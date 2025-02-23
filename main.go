@@ -6,22 +6,9 @@ import (
 )
 
 func inputClean(text string) []string {
-	result := []string{}
-
-	words := strings.FieldsFunc(
-		strings.ToLower(text),
-		func(r rune) bool {
-			return r == ' ' || r == '\n'
-		})
-
-	for _, word := range words {
-		if word == "" || word == "\n" {
-			continue
-		}
-		result = append(result, word)
-	}
-
-	return result
+	textLowered := strings.ToLower(text)
+	words := strings.Fields(textLowered)
+	return words
 }
 
 func main() {
