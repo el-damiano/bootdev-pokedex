@@ -14,7 +14,9 @@ func inputClean(text string) []string {
 }
 
 func main() {
+	pageState := pageState{}
 	scanner := bufio.NewScanner(os.Stdin)
+
 	for {
 		fmt.Print("Pokedex > ")
 		scanner.Scan()
@@ -31,7 +33,7 @@ func main() {
 			continue
 		}
 
-		err := command.callback()
+		err := command.callback(&pageState)
 		if err != nil {
 			fmt.Printf("%v\n", err)
 		}

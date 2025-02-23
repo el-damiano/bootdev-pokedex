@@ -7,10 +7,15 @@ import (
 	"os"
 )
 
+type pageState struct {
+	Next     string
+	Previous string
+}
+
 type commandREPL struct {
 	name        string
 	description string
-	callback    func() error
+	callback    func(*pageState) error
 }
 
 func commands() map[string]commandREPL {
@@ -33,13 +38,13 @@ func commands() map[string]commandREPL {
 	}
 }
 
-func commandExit() error {
+func commandExit(pageState *pageState) error {
 	fmt.Printf("Closing the Pokedex... Goodbye!\n")
 	os.Exit(0)
 	return nil
 }
 
-func commandHelp() error {
+func commandHelp(pageState *pageState) error {
 	fmt.Print(`Welcome to the Pokedex!
 Usage:
 
@@ -60,10 +65,10 @@ type LocationsPage struct {
 	} `json:"results"`
 }
 
-func commandMap() error {
-	urlFull := "https://pokeapi.co/api/v2/location-area"
+func commandMap(pageState *pageState) error {
+	pageState.Next = locationURL(pageState.Next)
 
-	res, err := http.Get(urlFull)
+	res, err := http.Get(pageState.Next)
 	if err != nil {
 		return err
 	}
