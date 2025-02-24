@@ -1,20 +1,15 @@
 package main
 
 import (
-	"encoding/json"
+	"errors"
 	"fmt"
-	"net/http"
 	"os"
 )
-
-type pageState struct {
-	Page string
-}
 
 type commandREPL struct {
 	name        string
 	description string
-	callback    func(*pageState) error
+	callback    func(*config) error
 }
 
 func commands() map[string]commandREPL {
@@ -32,23 +27,23 @@ func commands() map[string]commandREPL {
 		"map": {
 			name:        "map",
 			description: "Displays a list of locations",
-			callback:    commandMapForwards,
+			callback:    commandMapf,
 		},
 		"mapb": {
 			name:        "map",
 			description: "Displays a list of locations",
-			callback:    commandMapBackwards,
+			callback:    commandMapb,
 		},
 	}
 }
 
-func commandExit(pageState *pageState) error {
+func commandExit(cfg *config) error {
 	fmt.Printf("Closing the Pokedex... Goodbye!\n")
 	os.Exit(0)
 	return nil
 }
 
-func commandHelp(pageState *pageState) error {
+func commandHelp(cfg *config) error {
 	fmt.Print(`Welcome to the Pokedex!
 Usage:
 
@@ -69,38 +64,37 @@ type LocationsPage struct {
 	} `json:"results"`
 }
 
-func commandMapForwards(pageState *pageState) error {
-	commandMap(pageState, 20, 20)
-	return nil
-}
-
-func commandMapBackwards(pageState *pageState) error {
-	commandMap(pageState, -20, 20)
-	return nil
-}
-
-func commandMap(pageState *pageState, offset, limit int) error {
-	pageState.Page = locationURL(pageState.Page, offset, limit)
-
-	res, err := http.Get(pageState.Page)
-	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("non-OK HTTP status: %s", res.Status)
-	}
-
-	var locationsPage LocationsPage
-	decoder := json.NewDecoder(res.Body)
-	err = decoder.Decode(&locationsPage)
+func commandMapf(cfg *config) error {
+	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.pageNext)
 	if err != nil {
 		return err
 	}
 
-	for _, location := range locationsPage.Locations {
-		fmt.Printf("%v\n", location.Name)
+	cfg.pageNext = locationsResp.Next
+	cfg.pagePrev = locationsResp.Previous
+
+	for _, location := range locationsResp.Results {
+		fmt.Println(location.Name)
+	}
+
+	return nil
+}
+
+func commandMapb(cfg *config) error {
+	if cfg.pagePrev == nil {
+		return errors.New("you're on the first page")
+	}
+
+	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.pagePrev)
+	if err != nil {
+		return err
+	}
+
+	cfg.pageNext = locationsResp.Next
+	cfg.pagePrev = locationsResp.Previous
+
+	for _, location := range locationsResp.Results {
+		fmt.Println(location.Name)
 	}
 
 	return nil

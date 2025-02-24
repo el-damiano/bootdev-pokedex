@@ -3,9 +3,17 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/el-damiano/bootdev-pokedex/internal/pokeapi"
 	"os"
 	"strings"
+	"time"
 )
+
+type config struct {
+	pokeapiClient pokeapi.Client
+	pageNext      *string
+	pagePrev      *string
+}
 
 func inputClean(text string) []string {
 	textLowered := strings.ToLower(text)
@@ -14,7 +22,10 @@ func inputClean(text string) []string {
 }
 
 func main() {
-	pageState := pageState{}
+	pokeClient := pokeapi.NewClient(10 * time.Second)
+	cfg := config{
+		pokeapiClient: pokeClient,
+	}
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
@@ -33,7 +44,7 @@ func main() {
 			continue
 		}
 
-		err := command.callback(&pageState)
+		err := command.callback(&cfg)
 		if err != nil {
 			fmt.Printf("%v\n", err)
 		}
