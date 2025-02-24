@@ -8,8 +8,7 @@ import (
 )
 
 type pageState struct {
-	Next     string
-	Previous string
+	Page string
 }
 
 type commandREPL struct {
@@ -33,7 +32,12 @@ func commands() map[string]commandREPL {
 		"map": {
 			name:        "map",
 			description: "Displays a list of locations",
-			callback:    commandMap,
+			callback:    commandMapForwards,
+		},
+		"mapb": {
+			name:        "map",
+			description: "Displays a list of locations",
+			callback:    commandMapBackwards,
 		},
 	}
 }
@@ -65,10 +69,20 @@ type LocationsPage struct {
 	} `json:"results"`
 }
 
-func commandMap(pageState *pageState) error {
-	pageState.Next = locationURL(pageState.Next)
+func commandMapForwards(pageState *pageState) error {
+	commandMap(pageState, 20, 20)
+	return nil
+}
 
-	res, err := http.Get(pageState.Next)
+func commandMapBackwards(pageState *pageState) error {
+	commandMap(pageState, -20, 20)
+	return nil
+}
+
+func commandMap(pageState *pageState, offset, limit int) error {
+	pageState.Page = locationURL(pageState.Page, offset, limit)
+
+	res, err := http.Get(pageState.Page)
 	if err != nil {
 		return err
 	}

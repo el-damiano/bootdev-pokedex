@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/url"
 	"strconv"
 	"strings"
@@ -14,11 +15,11 @@ type pokeURL struct {
 	queries  []string
 }
 
-func locationURL(urlOld string) string {
+func locationURL(urlOld string, offset, limit int) string {
 	urlFull := ""
 	urlEndpoint := "location-area"
 	if urlOld == "" {
-		urlQueries := "offset=0&limit=20"
+		urlQueries := fmt.Sprintf("offset=-%d&limit=%d", offset, limit)
 		urlFull = baseUrl + urlEndpoint + "?" + urlQueries
 	} else {
 		urlFull = urlOld
@@ -43,7 +44,10 @@ func locationURL(urlOld string) string {
 				continue
 			}
 
-			valueNew += 20
+			valueNew += offset
+			if valueNew < 0 {
+				valueNew = 0
+			}
 			urlNew += key + "=" + strconv.Itoa(valueNew)
 
 		} else {
