@@ -65,7 +65,7 @@ type LocationsPage struct {
 }
 
 func commandMapf(cfg *config) error {
-	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.pageNext)
+	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.pageNext, cfg.pokeCache)
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func commandMapb(cfg *config) error {
 		return errors.New("you're on the first page")
 	}
 
-	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.pagePrev)
+	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.pagePrev, cfg.pokeCache)
 	if err != nil {
 		return err
 	}

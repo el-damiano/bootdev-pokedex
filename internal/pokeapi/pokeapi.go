@@ -5,6 +5,8 @@ import (
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/el-damiano/bootdev-pokedex/internal/pokecache"
 )
 
 var baseUrl = "https://pokeapi.co/api/v2"
@@ -31,11 +33,22 @@ type LocationsResp struct {
 	} `json:"results"`
 }
 
-func (c *Client) ListLocations(urlPage *string) (LocationsResp, error) {
-	urlEndpoint := "/location-area"
+func (c *Client) ListLocations(urlPage *string, cache *pokecache.Cache) (LocationsResp, error) {
+	urlEndpoint := "/location-area?offset=0&limit=20"
 	url := baseUrl + urlEndpoint
 	if urlPage != nil {
 		url = *urlPage
+	}
+
+	cachedVal, ok := cache.Get(url)
+	if ok {
+		var locationsResp = LocationsResp{}
+		err := json.Unmarshal(cachedVal, &locationsResp)
+		if err != nil {
+			return LocationsResp{}, err
+		}
+		cache.Add(url, cachedVal)
+		return locationsResp, nil
 	}
 
 	req, err := http.NewRequest("GET", url, nil)
@@ -53,6 +66,8 @@ func (c *Client) ListLocations(urlPage *string) (LocationsResp, error) {
 	if err != nil {
 		return LocationsResp{}, err
 	}
+
+	cache.Add(url, dat)
 
 	var locationsResp = LocationsResp{}
 	err = json.Unmarshal(dat, &locationsResp)
