@@ -14,9 +14,15 @@ type commandREPL struct {
 
 func commands() map[string]commandREPL {
 	return map[string]commandREPL{
+		// TODO: add quit
 		"exit": {
 			name:        "exit",
 			description: "Exit the Pokedex",
+			callback:    commandExit,
+		},
+		"quit": {
+			name:        "quit",
+			description: "Quit Pokedex",
 			callback:    commandExit,
 		},
 		"help": {
@@ -49,6 +55,7 @@ Usage:
 
 help: Displays a help message
 exit: Exit the Pokedex
+quit: Quit Pokedex
 map: Displays a list of map locations
 `)
 	return nil
