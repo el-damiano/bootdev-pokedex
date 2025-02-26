@@ -61,16 +61,6 @@ map: Displays a list of map locations
 	return nil
 }
 
-type LocationsPage struct {
-	Count     int    `json:"count"`
-	Next      string `json:"next"`
-	Previous  string `json:"previous"`
-	Locations []struct {
-		Name string `json:"name"`
-		URL  string `json:"url"`
-	} `json:"results"`
-}
-
 func commandMapf(cfg *config) error {
 	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.pageNext)
 	if err != nil {
