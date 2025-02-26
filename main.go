@@ -11,7 +11,7 @@ import (
 )
 
 type config struct {
-	pokeapiClient pokeapi.Client
+	pokeapiClient *pokeapi.Client
 	pageNext      *string
 	pagePrev      *string
 }
@@ -25,7 +25,7 @@ func inputClean(text string) []string {
 func main() {
 	pokeClient := pokeapi.NewClient(10*time.Second, 5*time.Minute)
 	cfg := &config{
-		pokeapiClient: pokeClient,
+		pokeapiClient: &pokeClient,
 	}
 	scanner := bufio.NewScanner(os.Stdin)
 
