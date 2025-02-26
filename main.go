@@ -8,12 +8,10 @@ import (
 	"time"
 
 	"github.com/el-damiano/bootdev-pokedex/internal/pokeapi"
-	"github.com/el-damiano/bootdev-pokedex/internal/pokecache"
 )
 
 type config struct {
 	pokeapiClient pokeapi.Client
-	pokeCache     *pokecache.Cache
 	pageNext      *string
 	pagePrev      *string
 }
@@ -25,11 +23,9 @@ func inputClean(text string) []string {
 }
 
 func main() {
-	pokeClient := pokeapi.NewClient(10 * time.Second)
-	pokeCache := pokecache.NewCache(10 * time.Second)
-	cfg := config{
+	pokeClient := pokeapi.NewClient(10*time.Second, 5*time.Minute)
+	cfg := &config{
 		pokeapiClient: pokeClient,
-		pokeCache:     pokeCache,
 	}
 	scanner := bufio.NewScanner(os.Stdin)
 
@@ -49,7 +45,7 @@ func main() {
 			continue
 		}
 
-		err := command.callback(&cfg)
+		err := command.callback(cfg)
 		if err != nil {
 			fmt.Printf("%v\n", err)
 		}

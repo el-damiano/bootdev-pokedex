@@ -13,13 +13,15 @@ var baseUrl = "https://pokeapi.co/api/v2"
 
 type Client struct {
 	httpClient http.Client
+	cache      pokecache.Cache
 }
 
-func NewClient(timeout time.Duration) Client {
+func NewClient(timeout, cacheInterval time.Duration) Client {
 	return Client{
 		httpClient: http.Client{
 			Timeout: timeout,
 		},
+		cache: *pokecache.NewCache(cacheInterval),
 	}
 }
 
@@ -33,21 +35,21 @@ type LocationsResp struct {
 	} `json:"results"`
 }
 
-func (c *Client) ListLocations(urlPage *string, cache *pokecache.Cache) (LocationsResp, error) {
+func (c *Client) ListLocations(urlPage *string) (LocationsResp, error) {
 	urlEndpoint := "/location-area?offset=0&limit=20"
 	url := baseUrl + urlEndpoint
 	if urlPage != nil {
 		url = *urlPage
 	}
 
-	cachedVal, ok := cache.Get(url)
+	cachedVal, ok := c.cache.Get(url)
 	if ok {
 		var locationsResp = LocationsResp{}
 		err := json.Unmarshal(cachedVal, &locationsResp)
 		if err != nil {
 			return LocationsResp{}, err
 		}
-		cache.Add(url, cachedVal)
+		c.cache.Add(url, cachedVal)
 		return locationsResp, nil
 	}
 
@@ -67,7 +69,7 @@ func (c *Client) ListLocations(urlPage *string, cache *pokecache.Cache) (Locatio
 		return LocationsResp{}, err
 	}
 
-	cache.Add(url, dat)
+	c.cache.Add(url, dat)
 
 	var locationsResp = LocationsResp{}
 	err = json.Unmarshal(dat, &locationsResp)
