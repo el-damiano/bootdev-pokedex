@@ -45,7 +45,12 @@ func main() {
 			continue
 		}
 
-		err := command.callback(cfg)
+		args := []string{}
+		if len(words) > 1 {
+			args = words[1:]
+		}
+
+		err := command.callback(cfg, args...)
 		if err != nil {
 			fmt.Printf("%v\n", err)
 		}
