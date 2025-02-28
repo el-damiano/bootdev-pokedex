@@ -14,6 +14,7 @@ type config struct {
 	pokeapiClient *pokeapi.Client
 	pageNext      *string
 	pagePrev      *string
+	pokedex       map[string]pokeapi.Pokemon
 }
 
 func inputClean(text string) []string {
@@ -26,6 +27,7 @@ func main() {
 	pokeClient := pokeapi.NewClient(10*time.Second, 5*time.Minute)
 	cfg := &config{
 		pokeapiClient: &pokeClient,
+		pokedex:       map[string]pokeapi.Pokemon{},
 	}
 	scanner := bufio.NewScanner(os.Stdin)
 
