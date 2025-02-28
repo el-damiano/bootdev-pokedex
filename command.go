@@ -41,7 +41,7 @@ func commands() map[string]commandREPL {
 			callback:    commandMapf,
 		},
 		"mapb": {
-			name:        "map",
+			name:        "mapb",
 			description: "Get the previous page of locations",
 			callback:    commandMapb,
 		},
