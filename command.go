@@ -31,12 +31,12 @@ func commands() map[string]commandREPL {
 		},
 		"map": {
 			name:        "map",
-			description: "Displays a list of locations",
+			description: "Get the next page of locations",
 			callback:    commandMapf,
 		},
 		"mapb": {
 			name:        "map",
-			description: "Displays a list of locations",
+			description: "Get the previous page of locations",
 			callback:    commandMapb,
 		},
 		"explore": {
@@ -54,15 +54,13 @@ func commandExit(cfg *config, args ...string) error {
 }
 
 func commandHelp(cfg *config, args ...string) error {
-	fmt.Print(`Welcome to the Pokedex!
-Usage:
-
-help: Displays a help message
-exit: Exit the Pokedex
-quit: Quit Pokedex
-map: Displays a list of map locations
-explore: Display list of Pokemons at a specific location
-`)
+	fmt.Println("Summary of Pokedex Commands")
+	fmt.Println()
+	// TODO: maybe display in the same order
+	for _, cmd := range commands() {
+		fmt.Printf("%s: %s\n", cmd.name, cmd.description)
+	}
+	fmt.Println()
 	return nil
 }
 
