@@ -50,6 +50,11 @@ func commands() map[string]commandREPL {
 			description: "Attempt catching a Pokemon",
 			callback:    commandCatch,
 		},
+		"inspect": {
+			name:        "inspect [name]",
+			description: "Display information about a caught Pokemon",
+			callback:    commandInspect,
+		},
 	}
 }
 
@@ -145,6 +150,40 @@ func commandCatch(cfg *config, args ...string) error {
 		fmt.Printf("%s was caught!\n", pokemon.Name)
 	} else {
 		fmt.Printf("%s escaped!\n", pokemon.Name)
+	}
+
+	return nil
+}
+
+func commandInspect(cfg *config, args ...string) error {
+	if len(args) == 0 {
+		return errors.New("catch command expects a Pokemon name")
+	}
+	name := args[0]
+	pokemon, ok := cfg.pokedex[name]
+	if !ok {
+		return fmt.Errorf("%s has not been caught yet!", name)
+	}
+
+	fmt.Printf("Name: %s\n", pokemon.Name)
+	fmt.Printf("Height: %d\n", pokemon.Height)
+	fmt.Printf("Weight: %d\n", pokemon.Weight)
+
+	fmt.Println("Stats:")
+	for _, stat := range pokemon.Stats {
+		fmt.Printf("  - %s: %v\n", stat.Stat.Name, stat.BaseStat)
+	}
+
+	fmt.Println("Types:")
+	for _, pokeType := range pokemon.Types {
+		fmt.Printf("  - %s\n", pokeType.Type.Name)
+	}
+
+	fmt.Printf("Total moves: %d\n", len(pokemon.Moves))
+
+	fmt.Println("Abilities:")
+	for _, ability := range pokemon.Abilities {
+		fmt.Printf("  - %s\n", ability.Ability.Name)
 	}
 
 	return nil
