@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"os"
+	"sort"
 )
 
 type commandREPL struct {
@@ -77,10 +78,22 @@ func commandExit(cfg *config, args ...string) error {
 func commandHelp(cfg *config, args ...string) error {
 	fmt.Println("Summary of Pokedex Commands")
 	fmt.Println()
-	// TODO: maybe display in the same order
-	for _, cmd := range commands() {
+
+	commands := commands()
+	keys := make([]string, len(commands))
+
+	i := 0
+	for key := range commands {
+		keys[i] = key
+		i++
+	}
+
+	sort.Strings(keys)
+	for _, key := range keys {
+		cmd := commands[key]
 		fmt.Printf("%s: %s\n", cmd.name, cmd.description)
 	}
+
 	fmt.Println()
 	return nil
 }
