@@ -60,6 +60,11 @@ func commands() map[string]commandREPL {
 			description: "Display information about a caught Pokemon",
 			callback:    commandInspect,
 		},
+		"find": {
+			name:        "find [name]",
+			description: "Find locations where [name] can be found",
+			callback:    commandFind,
+		},
 	}
 }
 
@@ -197,6 +202,24 @@ func commandInspect(cfg *config, args ...string) error {
 	fmt.Println("Abilities:")
 	for _, ability := range pokemon.Abilities {
 		fmt.Printf("  - %s\n", ability.Ability.Name)
+	}
+
+	return nil
+}
+
+func commandFind(cfg *config, args ...string) error {
+	if len(args) == 0 {
+		return errors.New("find command expects a Pokemon name")
+	}
+	name := args[0]
+
+	encounters, err := cfg.pokeapiClient.GetPokemonEncounters(name)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%s can be found at:\n", name)
+	for _, enc := range encounters {
+		fmt.Printf("  - %s\n", enc.LocationArea.Name)
 	}
 
 	return nil

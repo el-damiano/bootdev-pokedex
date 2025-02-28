@@ -140,3 +140,43 @@ func (c *Client) GetPokemon(name string) (Pokemon, error) {
 
 	return pokemon, nil
 }
+
+func (c *Client) GetPokemonEncounters(name string) (PokemonEncounters, error) {
+	urlEndpoint := "/pokemon"
+	url := baseUrl + urlEndpoint + "/" + name + "/encounters"
+
+	cachedValue, ok := c.cache.Get(url)
+	if ok {
+		var pokemonEncounters = PokemonEncounters{}
+		err := json.Unmarshal(cachedValue, &pokemonEncounters)
+		if err != nil {
+			return PokemonEncounters{}, err
+		}
+		c.cache.Add(url, cachedValue)
+		return pokemonEncounters, nil
+	}
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return PokemonEncounters{}, err
+	}
+
+	res, err := c.httpClient.Do(req)
+	if err != nil {
+		return PokemonEncounters{}, err
+	}
+	defer res.Body.Close()
+
+	data, err := io.ReadAll(res.Body)
+	if err != nil {
+		return PokemonEncounters{}, err
+	}
+
+	var pokemonEncounters = PokemonEncounters{}
+	err = json.Unmarshal(data, &pokemonEncounters)
+	if err != nil {
+		return PokemonEncounters{}, err
+	}
+
+	return pokemonEncounters, nil
+}
